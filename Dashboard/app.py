@@ -6,7 +6,6 @@ import openai
 import warnings
 warnings.filterwarnings(action = 'ignore')
 
-
 with open('utils\model\predictor.pickle', 'rb') as file:
     model = pickle.load(file)
     
@@ -19,7 +18,6 @@ def prediction(N, P, K, Ph, rf, city):
     pred = pred[0]
     print(pred)
     return pred
-
 
 def fetch_weather(city):
     api_key = '8afacb880aa75aed554fe64706531396'
@@ -37,24 +35,15 @@ def fetch_weather(city):
     else:
         print('Error fetching weather data')
         
-
-
 def GAN():
     openai.api_key = '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'
     prompt = "engineer."
     model = "text-davinci-003"
     response = openai.Completion.create(engine=model, prompt=prompt, max_tokens=10)
-
     generated_text = response.choices[0].text
     print(generated_text)
     
     
-    
-    
-    
-    
-    
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -71,15 +60,11 @@ def crop_rec(pred = 0):
         Ph = float(request.form['Ph'])
         R = float(request.form['Rainfall'])
         pred = prediction(N= N, P= P, K= K, Ph= Ph, rf= R, city= 'kolonnawa')
-
     return render_template('crop_rec.html', pred_value = pred)
-
 
 @app.route('/plant_d.html')
 def plant_d():
     return render_template('plant_d.html')
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
