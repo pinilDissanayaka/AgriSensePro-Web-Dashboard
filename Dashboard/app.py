@@ -1,10 +1,16 @@
 from flask import Flask, request, render_template, url_for, Markup
 import numpy as np
 import pickle
+import os
+import replicate
 import requests
-import openai
+#import openai
 import warnings
 warnings.filterwarnings(action = 'ignore')
+
+api_key = '8afacb880aa75aed554fe64706531396' #Weather api
+os.environ["REPLICATE_API_TOKEN"] = "r8_3GNMwe3ZfwbZAu7OGb0WTxZPR2SzYbD061RJy" #Llama2 Api
+
 
 with open('utils\model\predictor.pickle', 'rb') as file:
     model = pickle.load(file)
@@ -20,7 +26,6 @@ def prediction(N, P, K, Ph, rf, city):
     return pred
 
 def fetch_weather(city):
-    api_key = '8afacb880aa75aed554fe64706531396'
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
     response = requests.get(url)
 
@@ -35,13 +40,24 @@ def fetch_weather(city):
     else:
         print('Error fetching weather data')
         
-def GAN():
-    openai.api_key = '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'
-    prompt = "engineer."
-    model = "text-davinci-003"
-    response = openai.Completion.create(engine=model, prompt=prompt, max_tokens=10)
-    generated_text = response.choices[0].text
-    print(generated_text)
+#def GAN():
+#    openai.api_key = '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'
+#    prompt = "engineer."
+#    model = "text-davinci-003"
+#    response = openai.Completion.create(engine=model, prompt=prompt, max_tokens=10)
+#    generated_text = response.choices[0].text
+#    print(generated_text)
+
+def llama2(prompt):
+    output = replicate.run('a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5', # LLM model
+                        input={"prompt": f"{prompt}", # Prompts
+                        "temperature":0.1, "top_p":0.9, "max_length":2048, "repetition_penalty":1})  # Model parameters
+    full_response = ""
+    for item in output:
+        full_response += item
+
+    print(full_response)
+    
     
     
 app = Flask(__name__)
